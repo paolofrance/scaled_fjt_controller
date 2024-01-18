@@ -1,0 +1,9 @@
+<library path="scaled_fjt_controller">
+  <class name="scaled_fjt_controller/ScaledFjtController" 
+         type="scaled_fjt_controller::ScaledFjtController" 
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+      This controller implements the followjointtrajectiory action server allowing for velocity scaling.
+    </description>
+  </class>
+</library>
