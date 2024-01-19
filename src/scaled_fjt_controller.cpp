@@ -80,9 +80,6 @@ controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclc
   return ret;
 }
 
-
-
-
 controller_interface::return_type ScaledFjtController::update(const rclcpp::Time& time, const rclcpp::Duration& period)
 {
   if( !microinterpolator_->interpolate(td_.scaled_time,current_point_,speed_ovr_) )
@@ -104,23 +101,8 @@ controller_interface::return_type ScaledFjtController::update(const rclcpp::Time
   for (int i=0; i<current_point_.positions.size();i++)
     this->joint_command_interface_[0][i].get().set_value(current_point_.positions[i]);
 
-
-    // current_point_.time_from_start = rclcpp::Duration::from_seconds(0.0);
-    // current_point_.positions   = this->state_current_.positions;
-    // current_point_.velocities  = this->state_current_.velocities;
-    // current_point_.accelerations.resize(this->dof_, 0);
-    // current_point_.effort.resize(this->dof_, 0);
-
-    // RCLCPP_INFO_STREAM(get_node()->get_logger(),"starting point = \n"<< trajectory_msgs::msg::to_yaml(current_point_));
-
   return controller_interface::return_type::OK;
 }
-
-
-
-
-
-
 
 rclcpp_action::GoalResponse ScaledFjtController::goal_received_callback(
   const rclcpp_action::GoalUUID & uuid
@@ -154,9 +136,7 @@ void ScaledFjtController::SpeedOvrCb(const std_msgs::msg::Int16 ovr)
 }
 
 
-
-
-}  // namespace ur_controllers
+} 
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(scaled_fjt_controller::ScaledFjtController, controller_interface::ControllerInterface)
