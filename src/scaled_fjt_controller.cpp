@@ -55,7 +55,7 @@ controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclc
     current_point_.accelerations.resize(this->dof_, 0);
     current_point_.effort.resize(this->dof_, 0);
 
-    RCLCPP_FATAL_STREAM(get_node()->get_logger(),"this->joint_state_interface_[0].size = "<< this->joint_state_interface_[0].size());
+    RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"this->joint_state_interface_[0].size = "<< this->joint_state_interface_[0].size());
 
     for (int i=0; i<current_point_.positions.size();i++)
     {
@@ -63,7 +63,7 @@ controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclc
       current_point_.positions[i] = jpos;
     }
 
-    RCLCPP_INFO_STREAM(get_node()->get_logger(),"starting point = \n"<< trajectory_msgs::msg::to_yaml(current_point_));
+    RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"starting point = \n"<< trajectory_msgs::msg::to_yaml(current_point_));
 
     trajectory_msgs::msg::JointTrajectory trj;
     trj.points.push_back(current_point_);
