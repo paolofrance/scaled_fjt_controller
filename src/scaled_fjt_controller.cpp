@@ -31,7 +31,12 @@ controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclc
 
   speed_ovr_ = 1.0;
   // TODO: from param
-  std::string speed_ovr_topic = "/speed_ovr";
+
+  std::string speed_ovr_topic ;
+  if (!get_node()->has_parameter("speed_ovr_topic"))
+    speed_ovr_topic = "/speed_ovr";
+  else
+    speed_ovr_topic = get_node()->get_parameter("speed_ovr_topic").as_string();
 
   speed_ovr_sub_ = get_node()->create_subscription<std_msgs::msg::Int16>(
     speed_ovr_topic,
