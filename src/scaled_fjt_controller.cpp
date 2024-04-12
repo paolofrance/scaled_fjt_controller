@@ -26,7 +26,6 @@ controller_interface::InterfaceConfiguration ScaledFjtController::state_interfac
 
 controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclcpp_lifecycle::State& state)
 {
-
   auto ret = JointTrajectoryController::on_activate(state);
 
   speed_ovr_ = 1.0;
@@ -87,6 +86,7 @@ controller_interface::CallbackReturn ScaledFjtController::on_activate(const rclc
 
 controller_interface::return_type ScaledFjtController::update(const rclcpp::Time& time, const rclcpp::Duration& period)
 {
+  std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
   if( !microinterpolator_->interpolate(td_.scaled_time,current_point_,speed_ovr_) )
   {
     RCLCPP_ERROR_STREAM(get_node()->get_logger(),"something wrong in interpolation.");
@@ -106,6 +106,9 @@ controller_interface::return_type ScaledFjtController::update(const rclcpp::Time
   for (int i=0; i<current_point_.positions.size();i++)
     this->joint_command_interface_[0][i].get().set_value(current_point_.positions[i]);
 
+  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+  RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"UPDATE time:  = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[microseconds]" );
+
   return controller_interface::return_type::OK;
 }
 
@@ -121,7 +124,18 @@ rclcpp_action::GoalResponse ScaledFjtController::goal_received_callback(
 rclcpp_action::CancelResponse ScaledFjtController::goal_cancelled_callback(
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJTrajAction>> goal_handle
 )
-{return JointTrajectoryController::goal_cancelled_callback(goal_handle);}
+{
+  
+  current_point_.time_from_start = rclcpp::Duration::from_seconds(0.0);
+  trajectory_msgs::msg::JointTrajectory trj;
+  trj.points.push_back(current_point_);
+
+  microinterpolator_->setTrajectory(trj);
+
+
+  auto ret = JointTrajectoryController::goal_cancelled_callback(goal_handle);
+  return ret;
+}
 
 void ScaledFjtController::goal_accepted_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJTrajAction>> goal_handle)
 {

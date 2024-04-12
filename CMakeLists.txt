@@ -50,5 +50,13 @@ install(
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
 )
+## Install project namespaced headers
+install(DIRECTORY include/${PROJECT_NAME}/
+DESTINATION include/scaled_fjt_controller
+FILES_MATCHING PATTERN "*.h*"
+PATTERN ".svn" EXCLUDE)
 
+ament_export_targets(export_scaled_fjt_controller HAS_LIBRARY_TARGET)
+ament_export_include_directories(include)
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_package()
