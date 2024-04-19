@@ -40,6 +40,7 @@ protected:
     rclcpp::Duration scaled_time;
   };
 
+  std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJTrajAction>> goal_handle_;
   ScaledFjtController::TimeData td_;
 private:
   bool init_microint_;

@@ -95,16 +95,30 @@ controller_interface::return_type ScaledFjtController::update(const rclcpp::Time
     RCLCPP_ERROR_STREAM(get_node()->get_logger(),"current point   = "  << trajectory_msgs::msg::to_yaml(current_point_));
   }
 
-  td_.scaled_time = rclcpp::Duration::from_seconds(td_.scaled_time.seconds() + period.seconds() * speed_ovr_);
-  td_.time        = rclcpp::Duration::from_seconds(td_.time.seconds() + period.seconds());
+  // td_.scaled_time = rclcpp::Duration::from_seconds(td_.scaled_time.seconds() + period.seconds() * speed_ovr_);
+  // td_.time        = rclcpp::Duration::from_seconds(td_.time.seconds() + period.seconds());
   
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"current point   = "  << trajectory_msgs::msg::to_yaml(current_point_));
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"td_.scaled_time   = "  << td_.scaled_time.seconds());
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"td_.time   = "  << td_.time.seconds());
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"speed ovr  = "  << speed_ovr_);
 
-  for (int i=0; i<current_point_.positions.size();i++)
+  // for (int i=0; i<current_point_.positions.size();i++)
+  //   this->joint_command_interface_[0][i].get().set_value(current_point_.positions[i]);
+
+  if(goal_handle_ && goal_handle_->is_executing() && (td_.scaled_time-trj_.points.back().time_from_start).seconds()>=0)
+  {
+    auto result = std::make_shared<FollowJTrajAction::Result>();
+    result->error_code = result->SUCCESSFUL;
+    goal_handle_->succeed(result);
+    goal_handle_ = nullptr;
+  }
+
+  for (size_t i=0; i<current_point_.positions.size();i++)
     this->joint_command_interface_[0][i].get().set_value(current_point_.positions[i]);
+
+  td_.scaled_time = rclcpp::Duration::from_seconds(td_.scaled_time.seconds() + period.seconds() * speed_ovr_);
+  td_.time        = rclcpp::Duration::from_seconds(td_.time.seconds() + period.seconds());
 
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"UPDATE time:  = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[microseconds]" );
@@ -145,6 +159,8 @@ void ScaledFjtController::goal_accepted_callback(std::shared_ptr<rclcpp_action::
   microinterpolator_->setTrajectory(trj_);
   td_.scaled_time = rclcpp::Duration::from_seconds(0.0);
   td_.time        = rclcpp::Duration::from_seconds(0.0);
+
+  goal_handle_ = goal_handle; //in the last line, otherwise goal_handle_->succeed() may happen in update()
 }
 
 
