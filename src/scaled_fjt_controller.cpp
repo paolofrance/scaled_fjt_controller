@@ -120,6 +120,7 @@ controller_interface::return_type ScaledFjtController::update(const rclcpp::Time
   td_.scaled_time = rclcpp::Duration::from_seconds(td_.scaled_time.seconds() + period.seconds() * speed_ovr_);
   td_.time        = rclcpp::Duration::from_seconds(td_.time.seconds() + period.seconds());
 
+
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
   RCLCPP_DEBUG_STREAM(get_node()->get_logger(),"UPDATE time:  = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[microseconds]" );
 
